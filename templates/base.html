@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        
+        <title>{% block title %}{% endblock %}</title>
+        
+        <!-- Bootstrap core CSS -->
+        <link href="bootstrap.min.css" rel="stylesheet">
+        
+        <link href="theme.css" rel="stylesheet">
+    </head>
+    <body>
+        
+        {% include '_navbar.html' %}
+        
+        {% block content %}{% endblock %}
+        
+    </body>
+</html>
