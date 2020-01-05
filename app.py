@@ -19,7 +19,6 @@ def close_db(error):
 
 @bp.before_app_request
 def load_user():
-    print('loading user')
     user = session.get('user')
 
     if user is None:
@@ -28,8 +27,7 @@ def load_user():
         db = get_db()
         user_query = db.execute('select id, name, password, expert, admin from users where name = ?', [user])
         user_result = user_query.fetchone()
-        g.user = user_result['name']
-    print(g.user)
+        g.user = user_result
         
 @bp.route('/')
 def index():
@@ -46,7 +44,7 @@ def register():
         db = get_db()
         db.execute('insert into users (name, password, expert, admin) values (?, ?, ?, ?)', [name, hashed_pw, expert, admin])
         db.commit()
-        return '<h1> User created! </h1>'
+        return redirect(url_for('.login'))
     
     return render_template('register.html')
 
@@ -94,9 +92,22 @@ def unanswered():
 
 @bp.route('/users')
 def users():
-    return render_template('users.html')
+    db = get_db()
+    user_query = db.execute('select name, id, expert, admin from users')
+    users = user_query.fetchall()
+    
+    return render_template('users.html', users=users)
 
+@bp.route('/promote')
+def promote():
+    if not 'user' in g:
+        return redirect(url_for('.users'))
 
+    db = get_db()
+    db.execute('update users set expert = 1 where id = ?', request.args.get('user'))
+    db.commit()
+    return redirect(url_for('.users'))
+    
 if __name__ == '__main__':
     app.register_blueprint(bp)
     print(app.url_map)
