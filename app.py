@@ -11,7 +11,7 @@ app = Flask(__name__)
 @app.teardown_appcontext
 def close_db(error):
     if hasattr(g, 'sqlite_db'):
-        g.sqlite3_db.close()
+        g.sqlite_db.close()
 
 @app.route('/')
 def index():
@@ -20,8 +20,15 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        
-        return f'Name: {request.form["name"]}, PW: {request.form["password"]}'
+        name = request.form['name']
+        hashed_pw = generate_password_hash(request.form['password'], method='sha256')
+        expert = 0
+        admin = 0
+
+        db = get_db()
+        db.execute('insert into users (name, password, expert, admin) values (?, ?, ?, ?)', [name, hashed_pw, expert, admin])
+        db.commit()
+        return '<h1> User created! </h1>'
     
     return render_template('register.html')
 
