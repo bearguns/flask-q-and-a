@@ -15,13 +15,19 @@
                         <div class="form-group">
                             <label for="inputName" class="col-lg-2 control-label">Name</label>
                             <div class="col-lg-10">
-                                <input type="text" class="form-control" id="inputName" placeholder="Name" name="name">
+                                <input type="text" class="form-control" id="inputName" placeholder="Name" name="name" {% if username %} value="{{ username }}" {% endif %}>
+                                {% if error and error.name %}
+                                <p>{{ error.name }}</p>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="inputPassword" class="col-lg-2 control-label">Password</label>
                             <div class="col-lg-10">
                                 <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="password">
+                                {% if error and error.password %}
+                                <p>{{ error.password }}</p>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="form-group">

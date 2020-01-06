@@ -45,20 +45,21 @@ def login():
     if request.method == 'POST':
         name = request.form['name']
         password = request.form['password']
-        
+        error = {}
         db = get_db()
         user_query = db.execute('select id, name, password from users where name = (?)', [name])
         user = user_query.fetchone()
 
         if user is None:
-            return 'User not found', 404
-
+            error['name'] = 'User not found.'
+        
         if check_password_hash(user['password'], password):
             session['user'] = user['name']
             return redirect(url_for('app.index'))
         else:
-            return render_template('login.html')
-        
+            error['password'] = 'Password incorrect.'
+            return render_template('login.html', error=error, username=name)
+    
     return render_template('login.html')
 
 @auth_bp.route('/logout')
