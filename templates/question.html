@@ -5,10 +5,10 @@
 <div class="container theme-showcase" role="main">
 
     <div class="jumbotron">
-        <h1>What?</h1>
-        <p>This is the answer.</p>
-        <p><a class="btn btn-primary btn-lg">Asked By: Herbert</a></p>
-        <p><a class="btn btn-primary btn-lg">Answered By: Anthony</a></p>
+        <h1>{{ question.question_text }}</h1>
+        <p>{{ question.answer_text }}</p>
+        <p><a class="btn btn-primary btn-lg">Asked By: {{ question.asked_by }}</a></p>
+        <p><a class="btn btn-primary btn-lg">Answered By: {{ question.expert }}</a></p>
     </div>
 
 </div>
