@@ -9,7 +9,15 @@ app_bp = Blueprint('app', __name__)
 @app_bp.route('/')
 def index():
     db = get_db()
-    question_query = db.execute('select questions.question_text, questions.id, questions.answer_text, users.name as asked_by, experts.name as expert from questions join users on users.id = questions.asked_by_id join users as experts on experts.id = questions.expert_id where questions.answer_text is not null')
+    question_query = db.execute(
+        '''
+        select questions.question_text, questions.id, questions.answer_text, users.name as asked_by, 
+        experts.name as expert from questions 
+        join users on users.id = questions.asked_by_id 
+        join users as experts on experts.id = questions.expert_id 
+        where questions.answer_text is not null
+        '''
+    )
     questions = question_query.fetchall()
     
     return render_template('home.html', questions=questions)
@@ -17,7 +25,16 @@ def index():
 @app_bp.route('/question/<question_id>')
 def question(question_id):
     db = get_db()
-    query = db.execute('select questions.question_text, questions.answer_text, users.name as asked_by, experts.name as expert from questions join users on users.id = questions.asked_by_id join users as experts on experts.id = questions.expert_id where questions.id = ?', [question_id])
+    query = db.execute(
+        '''
+        select questions.question_text, questions.answer_text, users.name as asked_by, experts.name as expert 
+        from questions 
+        join users on users.id = questions.asked_by_id 
+        join users as experts on experts.id = questions.expert_id 
+        where questions.id = ?
+        ''',
+        [question_id]
+    )
     question = query.fetchone()
     return render_template('question.html', question=question)
 
@@ -57,7 +74,16 @@ def ask():
 @expert_required
 def unanswered():
     db = get_db()
-    question_query = db.execute('select questions.id, questions.question_text, users.name from questions join users on users.id = questions.asked_by_id where questions.answer_text is null and questions.expert_id = ?', [int(g.user['id'])])
+    question_query = db.execute(
+        '''
+        select questions.id, questions.question_text, users.name 
+        from questions 
+        join users on users.id = questions.asked_by_id 
+        where questions.answer_text is null 
+        and questions.expert_id = ?
+        ''',
+        [int(g.user['id'])]
+    )
     questions = question_query.fetchall()
     return render_template('unanswered.html', questions=questions)
 
