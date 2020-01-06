@@ -89,7 +89,7 @@ def login_required(view):
 def expert_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None or not g.user['expert']:
+        if g.user is None or not g.user['expert'] or not g.user['admin']:
             return redirect(url_for('auth.login'))
 
         return view(**kwargs)
