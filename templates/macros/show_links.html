@@ -1,0 +1,21 @@
+{% macro show_links(user) %}
+<ul class="nav navbar-nav">
+    <li class="active"><a href="{{ url_for('app.index') }}">Home</a></li>
+    {% if not user %}
+    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+    {% endif %}
+    {% if user.expert %} 
+    <li><a href="{{ url_for('app.unanswered') }}">Answer Questions</a></li>
+    {% endif %}
+    {% if user.admin %} 
+    <li><a href="{{ url_for('app.users') }}">User Setup</a></li>
+    {% endif %}
+    {% if user %}
+    <li><a href="{{ url_for('app.ask') }}">Ask Question</a></li>
+    {% endif %}
+    {% if user %} 
+    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+    {% endif %}
+</ul>
+{% endmacro %}

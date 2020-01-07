@@ -1,3 +1,4 @@
+{% from "macros/show_links.html" import show_links %}
 <!-- Fixed navbar -->
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
@@ -5,25 +6,7 @@
             <a class="navbar-brand" href="{{ url_for('app.index') }}">Questions & Answers</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="{{ url_for('app.index') }}">Home</a></li>
-                {% if not g.user %}
-                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-                <li><a href="{{ url_for('auth.register') }}">Register</a></li>
-                {% endif %}
-                {% if g.user.expert %} 
-                <li><a href="{{ url_for('app.unanswered') }}">Answer Questions</a></li>
-                {% endif %}
-                {% if g.user.admin %} 
-                <li><a href="{{ url_for('app.users') }}">User Setup</a></li>
-                {% endif %}
-                {% if g.user %}
-                <li><a href="{{ url_for('app.ask') }}">Ask Question</a></li>
-                {% endif %}
-                {% if g.user %} 
-                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-                {% endif %}
-            </ul>
+            {{ show_links(g.user) }}
         </div><!--/.nav-collapse -->
     </div>
 </nav>
