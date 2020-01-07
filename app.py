@@ -17,8 +17,10 @@ app.register_blueprint(auth_bp)
 
 @app.teardown_appcontext
 def close_db(error):
-    if hasattr(g, 'sqlite_db'):
-        g.sqlite_db.close()
+    if hasattr(g, 'postgres_db_cur'):
+        g.postgres_db_cur.close()
+    if hasattr(g, 'postgres_db_conn'):
+        g.postgres_db_conn.close()
     
 if __name__ == '__main__':
     app.run()

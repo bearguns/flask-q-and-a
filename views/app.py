@@ -9,7 +9,7 @@ app_bp = Blueprint('app', __name__)
 @app_bp.route('/')
 def index():
     db = get_db()
-    question_query = db.execute(
+    db.execute(
         '''
         select questions.question_text, questions.id, questions.answer_text, users.name as asked_by, 
         experts.name as expert from questions 
@@ -18,24 +18,24 @@ def index():
         where questions.answer_text is not null
         '''
     )
-    questions = question_query.fetchall()
+    questions = db.fetchall()
     
     return render_template('home.html', questions=questions)
 
 @app_bp.route('/question/<question_id>')
 def question(question_id):
     db = get_db()
-    query = db.execute(
+    db.execute(
         '''
         select questions.question_text, questions.answer_text, users.name as asked_by, experts.name as expert 
         from questions 
         join users on users.id = questions.asked_by_id 
         join users as experts on experts.id = questions.expert_id 
-        where questions.id = ?
+        where questions.id = %s
         ''',
-        [question_id]
+        (question_id, )
     )
-    question = query.fetchone()
+    question = db.fetchone()
     return render_template('question.html', question=question)
 
 @app_bp.route('/answer/<question_id>', methods=['GET', 'POST'])
@@ -45,12 +45,11 @@ def answer(question_id):
 
     if request.method == 'POST':
         answer_text = request.form['answer']
-        db.execute('update questions set answer_text = ? where id = ?', [answer_text, question_id])
-        db.commit()
+        db.execute('update questions set answer_text = %s where id = %s', (answer_text, question_id))
         return redirect(url_for('.unanswered'))
     
-    question_query = db.execute('select question_text, id from questions where id = ?', [question_id])
-    question = question_query.fetchone()
+    db.execute('select question_text, id from questions where id = %s', (question_id, ))
+    question = db.fetchone()
     
     return render_template('answer.html', question=question)
 
@@ -61,12 +60,11 @@ def ask():
 
     if request.method == 'POST':
         question = request.form['question']
-        db.execute('insert into questions (question_text, asked_by_id, expert_id) values (?, ?, ?)', [question, g.user['id'], request.form['expert']])
-        db.commit()
+        db.execute('insert into questions (question_text, asked_by_id, expert_id) values (%s, %s, %s)', (question, g.user['id'], request.form['expert']))
         return redirect(url_for('.unanswered'))
     
-    expert_query = db.execute('select id, name from users where expert = 1')
-    experts = expert_query.fetchall()
+    db.execute('select id, name from users where expert = True')
+    experts = db.fetchall()
     
     return render_template('ask.html', experts=experts)
 
@@ -74,25 +72,25 @@ def ask():
 @expert_required
 def unanswered():
     db = get_db()
-    question_query = db.execute(
+    db.execute(
         '''
         select questions.id, questions.question_text, users.name 
         from questions 
         join users on users.id = questions.asked_by_id 
         where questions.answer_text is null 
-        and questions.expert_id = ?
+        and questions.expert_id = %s
         ''',
-        [int(g.user['id'])]
+        (int(g.user['id']), )
     )
-    questions = question_query.fetchall()
+    questions = db.fetchall()
     return render_template('unanswered.html', questions=questions)
 
 @app_bp.route('/users')
 @admin_required
 def users():
     db = get_db()
-    user_query = db.execute('select name, id, expert, admin from users')
-    users = user_query.fetchall()
+    db.execute('select name, id, expert, admin from users')
+    users = db.fetchall()
     
     return render_template('users.html', users=users)
 
@@ -103,6 +101,5 @@ def promote():
         return redirect(url_for('.users'))
 
     db = get_db()
-    db.execute('update users set expert = 1 where id = ?', request.args.get('user'))
-    db.commit()
+    db.execute('update users set expert = True where id = %s', (request.args.get('user'), ))
     return redirect(url_for('.users'))

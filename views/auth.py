@@ -14,8 +14,8 @@ def load_user():
         g.user = None
     else:
         db = get_db()
-        user_query = db.execute('select id, name, password, expert, admin from users where name = ?', [user])
-        user_result = user_query.fetchone()
+        db.execute('select id, name, password, expert, admin from users where name = %s', (user, ))
+        user_result = db.fetchone()
         g.user = user_result
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -24,17 +24,16 @@ def register():
         name = request.form['name']
         db = get_db()
 
-        user_query = db.execute('select id, name from users where name = ?', [name])
-        existing_user = user_query.fetchone()
+        db.execute('select id, name from users where name = %s', (name, ))
+        existing_user = db.fetchone()
 
         if existing_user:
             return render_template('register.html', error='User already exists.')
 
         hashed_pw = generate_password_hash(request.form['password'], method='sha256')
-        expert = 0
-        admin = 0
-        db.execute('insert into users (name, password, expert, admin) values (?, ?, ?, ?)', [name, hashed_pw, expert, admin])
-        db.commit()
+        expert = False
+        admin = False
+        db.execute('insert into users (name, password, expert, admin) values (%s, %s, %s, %s)', (name, hashed_pw, expert, admin))
         
         return redirect(url_for('.login'))
     
@@ -47,8 +46,8 @@ def login():
         password = request.form['password']
         error = {}
         db = get_db()
-        user_query = db.execute('select id, name, password from users where name = (?)', [name])
-        user = user_query.fetchone()
+        db.execute('select id, name, password from users where name = %s', (name, ))
+        user = db.fetchone()
 
         if user is None:
             error['name'] = 'User not found.'
@@ -90,7 +89,7 @@ def login_required(view):
 def expert_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None or not g.user['expert'] or not g.user['admin']:
+        if g.user is None or not g.user['expert']:
             return redirect(url_for('auth.login'))
 
         return view(**kwargs)
