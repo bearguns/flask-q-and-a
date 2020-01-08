@@ -10,7 +10,7 @@ from views.app import app_bp
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(24)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 app.register_blueprint(app_bp)
 app.register_blueprint(auth_bp)

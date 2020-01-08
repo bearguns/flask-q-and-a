@@ -3,13 +3,17 @@ import sqlite3
 import psycopg2
 from psycopg2.extras import DictCursor
 from flask import g
+from dotenv import load_dotenv
 
-DATABASE_URL = 'postgres://awaaiikhpibljm:2c38dec9c6bd5b1e5e6ff14ddee44984058b94db0db23ca27ce493428a3cd466@ec2-174-129-254-218.compute-1.amazonaws.com:5432/d4g4ajm4pu33kg'
+load_dotenv()
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def connect_db():
+    import pdb; pdb.set_trace()
     connection = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
     connection.autocommit = True
-    sql = connection.cursor()
+    sql = connection.cursor
     return connection, sql
 
 def get_db():
@@ -22,6 +26,8 @@ def get_db():
     return g.postgres_db_cur
 
 def init_db():
+    import pdb; pdb.set_trace()
+
     db = connect_db()
     db[1].execute(open('schema.sql', 'r').read())
     db[1].close()
